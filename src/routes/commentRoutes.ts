@@ -30,10 +30,14 @@ import { commentDeleteMiddleware, commentEditMiddleware, commentsPostMiddleware 
  *         postId:
  *           type: string
  *           description: Post id of the comment
+ *         date:
+ *           type: Date
+ *           description: Date of the comment (generated automatically)
  *       example:
  *         comment: Post Comment
  *         owner: "1324342"
  *         postId: "1234"
+ *         date: "2025-02-26T17:13:28.504Z"
  */
 
 commentRouter

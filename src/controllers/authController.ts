@@ -42,7 +42,7 @@ const login = async (req: Request, res: Response) => {
             res.status(402).send("Invalid password");
             return;
         }
-        if(process.env.ACCESS_TOKEN_SECRET == null || process.env.JWT_EXPIRES_IN == null) {
+        if(process.env.ACCESS_TOKEN_SECRET == null || process.env.JWT_ACCESS_EXPIRES_IN == null || process.env.REFRESH_TOKEN_SECRET == null) {
             res.status(500).send("Internal server error");
             return;
         }
@@ -51,14 +51,14 @@ const login = async (req: Request, res: Response) => {
             return;
         }
         const random = Math.random().toString();
-        const accesToken = await jwt.sign(
+        const accessToken = await jwt.sign(
             {   
                 '_id': user._id,
                 'userName': user.userName,
                 'random': random
             }, 
             process.env.ACCESS_TOKEN_SECRET,
-            {expiresIn: process.env.JWT_EXPIRES_IN}
+            {expiresIn: process.env.JWT_ACCESS_EXPIRES_IN}
         );
         const refreshToken = await jwt.sign(
             {
@@ -66,14 +66,28 @@ const login = async (req: Request, res: Response) => {
                 'userName': user.userName,
                 'random': random
             }, 
-            process.env.REFRESH_TOKEN_SECRET
+            process.env.REFRESH_TOKEN_SECRET,
+            {expiresIn: process.env.JWT_REFRESH_EXPIRES_IN}
         )
         if(user.tokens == null) {
             user.tokens = [];
         }
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: false,
+            sameSite: "none",
+            secure: process.env.NODE_ENV === "production", 
+            maxAge: 7 * 24 * 60 * 60 * 1000 
+        });
+
+        res.cookie("accessToken", accessToken, {
+            httpOnly: false,
+            sameSite: "none",
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 1000 
+        });
         user.tokens.push(refreshToken);
         await user.save();
-        res.status(200).send({accessToken: accesToken, refreshToken: refreshToken});
+        res.status(200).send({accessToken: accessToken, refreshToken: refreshToken});
     } catch (error) {
         res.status(500).send(error);
     }
@@ -197,7 +211,7 @@ const refreshToken = async (req: Request, res: Response) => {
                 res.status(404).send("No mathcing token");
                 return;
             }
-            if(process.env.ACCESS_TOKEN_SECRET == null || process.env.JWT_EXPIRES_IN == null || process.env.REFRESH_TOKEN_SECRET == null) {
+            if(process.env.ACCESS_TOKEN_SECRET == null || process.env.JWT_ACCESS_EXPIRES_IN == null || process.env.JWT_REFRESH_EXPIERS_IN == null || process.env.REFRESH_TOKEN_SECRET == null) {
                 res.status(500).send("Internal server error");
                 return;
             }
@@ -209,7 +223,7 @@ const refreshToken = async (req: Request, res: Response) => {
                     'random': random
                 }, 
                 process.env.ACCESS_TOKEN_SECRET,
-                {expiresIn: process.env.JWT_EXPIRES_IN}
+                {expiresIn: process.env.JWT_ACCESS_EXPIRES_IN}
             )
             const newRefreshToken = await jwt.sign(
                 {
@@ -217,7 +231,8 @@ const refreshToken = async (req: Request, res: Response) => {
                     'userName': user.userName,
                     'random': random
                 }, 
-                process.env.REFRESH_TOKEN_SECRET
+                process.env.REFRESH_TOKEN_SECRET,
+                {expiresIn: process.env.JWT_REFRESH_EXPIRES_IN}
             )
             user.tokens.push(newRefreshToken);
             await user.save();

@@ -31,10 +31,14 @@ import { postMiddleware } from "../controllers/middlewares";
  *              owner:
  *                  type: string
  *                  description: ID of the owner of the post
+ *              date:
+ *                 type: Date
+ *                 description: Date of the post (generated automatically)
  *          example:
  *              title: Post Title
  *              content: Post Content
  *              owner: hsedrtyjyt45t
+ *              date: 2025-02-26T17:13:28.504Z
  */
 
 postRouter

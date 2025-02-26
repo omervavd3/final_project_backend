@@ -5,10 +5,22 @@ import bodyParser from "body-parser";
 import express, { Express } from "express";
 import swaggerUI from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
+import cors from "cors";
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true, 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+}));
+
+
+app.use(cookieParser());
 
 import postRouter from "./routes/postRoutes";
 import authRouter from "./routes/authRoutes";
