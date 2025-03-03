@@ -25,9 +25,12 @@ app.use(cookieParser());
 import postRouter from "./routes/postRoutes";
 import authRouter from "./routes/authRoutes";
 import commentRouter from "./routes/commentRoutes";
+import multerRouter from "./routes/multerRoutes";
+import path from "path";
 app.use("/posts", postRouter);
 app.use("/auth", authRouter);
 app.use("/comments", commentRouter);
+app.use("/file", multerRouter);
 
 //swagger
 if (process.env.NODE_ENV == "development") {
@@ -46,6 +49,8 @@ if (process.env.NODE_ENV == "development") {
   const specs = swaggerJsDoc(options);
   app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 }
+
+app.use(express.static(path.join(__dirname, "../public")));
 
 const initApp = () => {
   return new Promise<Express>((resolve, reject) => {

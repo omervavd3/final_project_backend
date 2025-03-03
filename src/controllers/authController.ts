@@ -132,6 +132,8 @@ const logout = async (req: Request, res: Response) => {
         }
         user.tokens = user.tokens.filter((token) => token !== refreshToken);
         await user.save();
+        res.clearCookie("refreshToken");
+        res.clearCookie("accessToken");
         res.status(200).send("Logged out");
       }
     );
