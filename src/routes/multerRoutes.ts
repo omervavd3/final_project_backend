@@ -3,7 +3,7 @@ import { uploadMiddleware, uploadFile, deleteFile, getFile } from "../controller
 
 const multerRouter = express.Router();
 multerRouter
-    .post("/", uploadMiddleware, uploadFile)
+    .post("/" ,uploadMiddleware, uploadFile)
     .delete("/:fileName", deleteFile)
     .get("/:fileName", getFile)
 
