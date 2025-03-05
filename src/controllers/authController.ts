@@ -5,8 +5,13 @@ import jwt from "jsonwebtoken";
 
 const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, userName, profileImage } = req.body;
-    if (email == null || password == null || userName == null || profileImage == null) {
+    const { email, password, userName, profileImageUrl } = req.body;
+    if (
+      email == null ||
+      password == null ||
+      userName == null ||
+      profileImageUrl == null
+    ) {
       res.status(404).send("Email, password and name are required");
       return;
     }
@@ -21,6 +26,7 @@ const register = async (req: Request, res: Response) => {
       email,
       password: hashedPassword,
       userName,
+      profileImageUrl,
     });
     res.status(201).send(newUser);
     return;
@@ -275,6 +281,20 @@ const refreshToken = async (req: Request, res: Response) => {
   }
 };
 
+const getProfileImageUrl = async (req: Request, res: Response) => {
+  try {
+    const _id = req.params.userId;
+    const user = await UserModel.findById(_id);
+    if (user == null) {
+      res.status(404).send("User not found");
+      return;
+    }
+    res.status(200).send(user.profileImageUrl);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
 export default {
   register,
   login,
@@ -282,4 +302,5 @@ export default {
   logout,
   autMiddleware,
   refreshToken,
+  getProfileImageUrl,
 };
