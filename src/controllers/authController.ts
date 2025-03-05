@@ -2,6 +2,7 @@ import UserModel from "../models/userModel";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { clearScreenDown } from "readline";
 
 const register = async (req: Request, res: Response) => {
   try {
@@ -269,6 +270,7 @@ const refreshToken = async (req: Request, res: Response) => {
           httpOnly: false,
           expires: new Date(Date.now() + 60 * 60 * 1000),
         });
+        user.tokens = user.tokens.filter((token) => token !== refreshToken);
         user.tokens.push(newRefreshToken);
         await user.save();
         res

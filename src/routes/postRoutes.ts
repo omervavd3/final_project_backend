@@ -2,7 +2,7 @@ import express from "express";
 const postRouter = express.Router();
 import PostController from "../controllers/postController";
 import authController from "../controllers/authController";
-import { postMiddleware } from "../controllers/middlewares";
+import { postDeleteMiddleware, postMiddleware } from "../controllers/middlewares";
 
 /**
  * @swagger
@@ -193,6 +193,6 @@ postRouter
  *      500:
  *        description: Some server error
  */
-    .delete("/:id", authController.autMiddleware, postMiddleware ,PostController.deleteItemById.bind(PostController))
+    .delete("/:id", authController.autMiddleware, postMiddleware, postDeleteMiddleware ,PostController.deleteItemById.bind(PostController))
 
 export default postRouter;
