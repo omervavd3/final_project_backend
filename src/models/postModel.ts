@@ -17,6 +17,10 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  ownerPhoto: {
+    type: String,
+    required: true
+  },
   photo: {
     type: String,
     required: true,

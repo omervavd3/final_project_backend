@@ -104,14 +104,64 @@ export const postDeleteMiddleware = async (
   }
 };
 
-export const authUpdateMiddleware = async (
+export const authUpdateMiddleWare = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const password = req.body.password;
+    const userId = req.params.userId;
+    const profileImageUrl = req.body.profileImageUrl;
+    const userName = req.body.userName;
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      res.status(404).send("User not found");
+      return;
+    }
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      res.status(402).send("Invalid password");
+      return;
+    }
+    if (profileImageUrl) {
+      const posts = await PostModel.find({ owner: userId });
+      if (posts.length > 0) {
+        posts.forEach(async (post) => {
+          post.ownerPhoto = profileImageUrl;
+          await post.save();
+        });
+      }
+    }
+    if(userName){
+      const posts = await PostModel.find({ owner: userId });
+      if (posts.length > 0) {
+        posts.forEach(async (post) => {
+          post.ownerName = userName;
+          await post.save();
+        });
+      }
+      const comments = await CommentModel.find({ owner: userId });
+      if (comments.length > 0) {
+        comments.forEach(async (comment) => {
+          comment.ownerName = userName;
+          await comment.save();
+        });
+      }
+    }
+    next();
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+export const authUpdatePasswordMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
     const userId = req.params.userId;
-    const userName = req.params.userName;
     const oldPassword = req.body.oldPassword;
     const user = await UserModel.findById(userId);
     if (!user) {
@@ -122,6 +172,46 @@ export const authUpdateMiddleware = async (
     if (!valid) {
       res.status(402).send("Invalid password");
       return;
+    }
+    next();
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+export const authDeleteMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.params.userId;
+    const password = req.body.password;
+    if (!password) {
+      res.status(404).send("Password is required");
+      return;
+    }
+    const user = await UserModel.findById(userId);
+    if (user == null) {
+      res.status(404).send("User not found");
+      return;
+    }
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      res.status(402).send("Invalid password");
+      return;
+    }
+    const comments = await CommentModel.find({ owner: userId });
+    if (comments.length > 0) {
+      await CommentModel.deleteMany({ owner: userId });
+    }
+    const posts = await PostModel.find({ owner: userId });
+    if (posts.length > 0) {
+      await PostModel.deleteMany({ owner: userId });
+    }
+    const likes = await LikesModel.find({ owner: userId });
+    if (likes.length > 0) {
+      await LikesModel.deleteMany({ owner: userId });
     }
     next();
   } catch (error) {

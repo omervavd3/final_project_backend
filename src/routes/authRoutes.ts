@@ -1,7 +1,7 @@
 import express from "express";
 const authRouter = express.Router();
 import authController from "../controllers/authController";
-import { authUpdateMiddleware } from "../controllers/middlewares";
+import { authDeleteMiddleware, authUpdateMiddleWare, authUpdatePasswordMiddleware } from "../controllers/middlewares";
 
 /**
  * @swagger
@@ -168,7 +168,7 @@ authRouter
  *       500:
  *         description: Internal server error
  */
-    .put("/updatePassword", authController.autMiddleware, authUpdateMiddleware ,authController.updateUser)
+    .put("/updatePassword", authController.autMiddleware, authUpdatePasswordMiddleware ,authController.updateUser)
 /**
  * @swagger
  * /auth/logout:
@@ -212,9 +212,11 @@ authRouter
  *      500:
  *        description: Internal server error
  */
+    .put("/", authController.autMiddleware, authUpdateMiddleWare,authController.updateUser)
     .post("/refresh", authController.refreshToken)
-
+    .get("/getUserInfo", authController.autMiddleware, authController.getUserInfo)
     .get("/getProfileImageUrlAndName", authController.autMiddleware ,authController.getProfileImageUrlAndName)
+    .delete("/deleteUser", authController.autMiddleware, authDeleteMiddleware,authController.deleteUser);
 
 
 export default authRouter;

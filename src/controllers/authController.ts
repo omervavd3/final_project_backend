@@ -2,7 +2,6 @@ import UserModel from "../models/userModel";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { clearScreenDown } from "readline";
 
 const register = async (req: Request, res: Response) => {
   try {
@@ -152,20 +151,35 @@ const logout = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
+    const profileImageUrl = req.body.profileImageUrl;
+    const email = req.body.email;
+    const userName = req.body.userName;
     const user = await UserModel.findById(userId);
-    if (user == null) {
+    if (!user) {
       res.status(404).send("User not found");
       return;
     }
-    const { email, newPassword } = req.body;
-    if (!email || !newPassword) {
-      res.status(404).send("Email and password are required");
-      return;
+    if (email) {
+      const emailExists = await UserModel.findOne({ email: email });
+      if (emailExists && emailExists._id.toString() !== userId) {
+        res.status(400).send("Email already exists");
+        return;
+      } else {
+        user.email = email;
+      }
     }
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-    user.email = email;
-    user.password = hashedPassword;
+    if (userName) {
+      const userNameExists = await UserModel.findOne({ userName: userName });
+      if (userNameExists && userNameExists._id.toString() !== userId) {
+        res.status(400).send("Username already exists");
+        return;
+      } else {
+        user.userName = userName;
+      }
+    }
+    if (profileImageUrl) {
+      user.profileImageUrl = profileImageUrl;
+    }
     await user.save();
     res.status(200).send(user);
   } catch (error) {
@@ -214,7 +228,7 @@ const refreshToken = async (req: Request, res: Response) => {
       res.status(500).send("Internal server error");
       return;
     }
-    jwt.verify(
+    await jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
       async (err: jwt.VerifyErrors | null, payload: any) => {
@@ -270,7 +284,6 @@ const refreshToken = async (req: Request, res: Response) => {
           httpOnly: false,
           expires: new Date(Date.now() + 60 * 60 * 1000),
         });
-        user.tokens = user.tokens.filter((token) => token !== refreshToken);
         user.tokens.push(newRefreshToken);
         await user.save();
         res
@@ -291,7 +304,38 @@ const getProfileImageUrlAndName = async (req: Request, res: Response) => {
       res.status(404).send("User not found");
       return;
     }
-    res.status(200).send({profileImageUrl: user.profileImageUrl, userName: user.userName});
+    res
+      .status(200)
+      .send({ profileImageUrl: user.profileImageUrl, userName: user.userName });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const getUserInfo = async (req: Request, res: Response) => {
+  try {
+    const _id = req.params.userId;
+    const user = await UserModel.findById(_id);
+    if (user == null) {
+      res.status(404).send("User not found");
+      return;
+    }
+    res.status(200).send({userName: user.userName, email: user.email, profileImageUrl: user.profileImageUrl});
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const _id = req.params.userId;
+    const user = await UserModel.findById(_id);
+    if (user == null) {
+      res.status(404).send("User not found");
+      return;
+    }
+    await UserModel.deleteOne({ _id: _id });
+    res.status(200).send("User deleted");
   } catch (error) {
     res.status(500).send(error);
   }
@@ -305,4 +349,6 @@ export default {
   autMiddleware,
   refreshToken,
   getProfileImageUrlAndName,
+  deleteUser,
+  getUserInfo,
 };
