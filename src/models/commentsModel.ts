@@ -20,6 +20,10 @@ const commentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    ownerName:{
+        type: String,
+        required: true,
+    },
     date: {
         type: Date,
         default: Date.now,

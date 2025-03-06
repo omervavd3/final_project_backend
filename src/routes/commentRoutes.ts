@@ -223,8 +223,8 @@ commentRouter
     commentController.deleteItemById.bind(commentController)
   )
 
-  .post(
-    "/getByPostId",
+  .get(
+    "/getByPostId/:postId/:page/:limit",
     authController.autMiddleware,
     commentController.getByPostId.bind(commentController)
   )

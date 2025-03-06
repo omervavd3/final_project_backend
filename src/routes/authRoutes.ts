@@ -214,7 +214,7 @@ authRouter
  */
     .post("/refresh", authController.refreshToken)
 
-    .get("/profileImageUrl", authController.autMiddleware ,authController.getProfileImageUrl)
+    .get("/getProfileImageUrlAndName", authController.autMiddleware ,authController.getProfileImageUrlAndName)
 
 
 export default authRouter;

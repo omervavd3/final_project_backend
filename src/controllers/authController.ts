@@ -283,7 +283,7 @@ const refreshToken = async (req: Request, res: Response) => {
   }
 };
 
-const getProfileImageUrl = async (req: Request, res: Response) => {
+const getProfileImageUrlAndName = async (req: Request, res: Response) => {
   try {
     const _id = req.params.userId;
     const user = await UserModel.findById(_id);
@@ -291,7 +291,7 @@ const getProfileImageUrl = async (req: Request, res: Response) => {
       res.status(404).send("User not found");
       return;
     }
-    res.status(200).send(user.profileImageUrl);
+    res.status(200).send({profileImageUrl: user.profileImageUrl, userName: user.userName});
   } catch (error) {
     res.status(500).send(error);
   }
@@ -304,5 +304,5 @@ export default {
   logout,
   autMiddleware,
   refreshToken,
-  getProfileImageUrl,
+  getProfileImageUrlAndName,
 };
