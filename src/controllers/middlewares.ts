@@ -64,7 +64,6 @@ export const postMiddleware = async (
 ): Promise<void> => {
   try {
     const userId = req.params.userId;
-    const userName = req.params.userName;
     const postId = req.params.id;
     const post = await PostModel.findById(postId);
     if (!post) {

@@ -124,7 +124,7 @@ postRouter
  *         500:
  *           description: Some server error
  */
-    .get("/:id", PostController.getById.bind(PostController))
+    .get("/:id", authController.autMiddleware, postMiddleware,PostController.getById.bind(PostController))
 /**
  * @swagger
  * /posts/{id}:
