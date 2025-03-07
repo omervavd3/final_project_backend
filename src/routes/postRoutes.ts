@@ -124,7 +124,7 @@ postRouter
  *         500:
  *           description: Some server error
  */
-    .get("/:id", authController.autMiddleware, postMiddleware,PostController.getById.bind(PostController))
+    .get("/:id", authController.autMiddleware,PostController.getById.bind(PostController))
 /**
  * @swagger
  * /posts/{id}:
@@ -194,5 +194,6 @@ postRouter
  *        description: Some server error
  */
     .delete("/:id", authController.autMiddleware, postMiddleware, postDeleteMiddleware ,PostController.deleteItemById.bind(PostController))
+    .get("/getByUserId", authController.autMiddleware, PostController.getByUserId.bind(PostController))
 
 export default postRouter;

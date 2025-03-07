@@ -8,7 +8,6 @@ class CommentController extends BaseController<CommentController> {
     }
 
     async getByUserId(req:Request, res:Response) {
-        console.log("here")
         try {
             const userId = req.params.userId;
             const data = await CommentModel.find({ owner: userId });
