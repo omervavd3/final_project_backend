@@ -81,7 +81,6 @@ class BaseController<T> {
   }
 
   async getByUserId(req: Request, res: Response) {
-    console.log("here");
     try {
       const userId = req.params.userId;
       const data = await this.model.find({ owner: userId });

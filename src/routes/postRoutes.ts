@@ -194,6 +194,7 @@ postRouter
  *        description: Some server error
  */
     .delete("/:id", authController.autMiddleware, postMiddleware, postDeleteMiddleware ,PostController.deleteItemById.bind(PostController))
-    .get("/getByUserId", authController.autMiddleware, PostController.getByUserId.bind(PostController))
+    .post("/getByUserId", authController.autMiddleware, PostController.getByUserId.bind(PostController))
+    .get("/getAllPagination/:page/:limit", authController.autMiddleware,PostController.getAllPagination.bind(PostController));
 
 export default postRouter;
